@@ -2,7 +2,7 @@
   <div>
     <select
       name="salutation"
-      @change="$emit('update:salutation', $event.target.value)"
+      @change="updateSalutation"
     >
       <option value="">-</option>
       <option
@@ -14,10 +14,12 @@
         {{ item }}
       </option>
     </select>
+    <!-- {{ salutation }} -->
 
     <input
       :value="name"
-      @input="$emit('update:name', $event.target.value)"
+      @input="updateName"
+      @change="updateName"
       type="text"
       name="name"
     />
@@ -38,14 +40,39 @@ export default {
       type: String,
       default: ''
     },
+    salutationModifiers: {
+      default: () => ({})
+    },
     name: {
       type: String,
       default: ''
+    },
+    nameModifiers: {
+      default: () => ({})
     }
   },
-  setup () {
+  setup (props, { emit }) {
+    const updateSalutation = event => {
+      let val = event.target.value
+      if (props.salutationModifiers.capitalize) {
+        val = val.toUpperCase()
+      }
+      emit('update:salutation', val)
+    }
+    const updateName = event => {
+      let val = event.target.value
+      if (props.nameModifiers.capitalize) {
+        val = val.charAt(0).toUpperCase() + val.slice(1)
+      }
+      if (props.nameModifiers.reverse && event.type === 'change') {
+        val = val.split('').reverse().join('')
+      }
+      emit('update:name', val)
+    }
     return {
-      salutations
+      salutations,
+      updateSalutation,
+      updateName
     }
   }
 }
